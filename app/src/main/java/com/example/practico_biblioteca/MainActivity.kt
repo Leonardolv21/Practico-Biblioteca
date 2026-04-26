@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                     viewModel = vm,
                     onBack = { navController.popBackStack() },
                     onEditarClick = { libroId -> navController.navigate("${NavScreens.EDIT.name}/$libroId") },
-                    onEliminarClick = { navController.popBackStack() }
+                    onEliminarExito = { navController.popBackStack() }
                 )
             }
 

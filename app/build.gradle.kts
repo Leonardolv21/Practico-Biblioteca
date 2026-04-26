@@ -48,6 +48,16 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    //Librería para hacer peticiones HTTP
+    implementation(libs.retrofit)
+    //retrofit converter
+    implementation(libs.converter.gson)
+    //ViewModel con Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    //Navegación
+    implementation(libs.androidx.navigation.compose)
+    //Carga de imágenes
+    implementation(libs.coil.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

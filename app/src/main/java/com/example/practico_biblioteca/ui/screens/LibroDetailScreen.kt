@@ -25,7 +25,7 @@ fun LibroDetailScreen(
     libroId: Int,
     onBack: () -> Unit,
     onEditarClick: (Int) -> Unit,
-    onEliminarClick: (Int) -> Unit,
+    onEliminarExito: () -> Unit,
     viewModel: LibroViewModel = viewModel()
 ) {
     LaunchedEffect(libroId) {
@@ -33,6 +33,16 @@ fun LibroDetailScreen(
     }
 
     val state by viewModel.detalleState.collectAsState()
+
+    // Eliminar libro state
+    val deleteState by viewModel.deleteState.collectAsState()
+    var mostrarDialogoEliminar by remember { mutableStateOf(false) }
+
+    LaunchedEffect(deleteState) {
+        if (deleteState is UiState.Success) {
+            onEliminarExito()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -47,7 +57,7 @@ fun LibroDetailScreen(
                     IconButton(onClick = { onEditarClick(libroId) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar")
                     }
-                    IconButton(onClick = { onEliminarClick(libroId) }) {
+                    IconButton(onClick = { mostrarDialogoEliminar = true }) {
                         Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
                 }
@@ -59,6 +69,36 @@ fun LibroDetailScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            if (mostrarDialogoEliminar) {
+                AlertDialog(
+                    onDismissRequest = { mostrarDialogoEliminar = false },
+                    title = { Text("Confirmar eliminación") },
+                    text = { Text("¿Estás seguro de que deseas eliminar este libro?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            mostrarDialogoEliminar = false
+                            viewModel.eliminarLibro(libroId)
+                        }) {
+                            Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { mostrarDialogoEliminar = false }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
+
+            if (deleteState is UiState.Error) {
+                Text(
+                    text = (deleteState as UiState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                )
+            }
             when (val s = state) {
                 is UiState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

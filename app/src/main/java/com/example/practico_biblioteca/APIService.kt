@@ -32,4 +32,10 @@ interface APIService {
     // --- Géneros ---
     @GET("generos")
     suspend fun getGeneros(): List<Genero>
+
+    @POST("generos")
+    suspend fun createGenero(@Body body: Map<String, String>): Genero
+
+    @DELETE("generos/{id}")
+    suspend fun deleteGenero(@Path("id") id: Int)
 }

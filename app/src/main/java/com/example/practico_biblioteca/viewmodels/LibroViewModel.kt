@@ -25,6 +25,12 @@ class LibroViewModel : ViewModel() {
     // --- Géneros disponibles ---
     private val _generosState = MutableStateFlow<UiState<List<Genero>>>(UiState.Loading)
     val generosState: StateFlow<UiState<List<Genero>>> = _generosState
+    // --- Estado formulario crear Genero---
+    private val _generoFormState = MutableStateFlow<UiState<Unit>?>(null)
+    val generoFormState: StateFlow<UiState<Unit>?> = _generoFormState
+    // --- Estado eliminar Genero ---
+    private val _deleteGeneroState = MutableStateFlow<UiState<Unit>?>(null)
+    val deleteGeneroState: StateFlow<UiState<Unit>?> = _deleteGeneroState
 
     // --- Estado formulario crear/editar ---
     private val _formState = MutableStateFlow<UiState<Unit>?>(null)
@@ -122,6 +128,35 @@ class LibroViewModel : ViewModel() {
         }
     }
 
+    fun crearGenero(nombre: String) {
+        if (isSubmitting) return
+        isSubmitting = true
+        viewModelScope.launch {
+            _generoFormState.value = UiState.Loading
+            val success = repository.createGenero(nombre)
+            if (success) {
+                _generoFormState.value = UiState.Success(Unit)
+                cargarGeneros()
+            } else {
+                _generoFormState.value = UiState.Error("Error al crear el género")
+            }
+            isSubmitting = false
+        }
+    }
+
+    fun eliminarGenero(id: Int) {
+        viewModelScope.launch {
+            _deleteGeneroState.value = UiState.Loading
+            val success = repository.deleteGenero(id)
+            if (success) {
+                _deleteGeneroState.value = UiState.Success(Unit)
+                cargarGeneros()
+            } else {
+                _deleteGeneroState.value = UiState.Error("Error al eliminar el género")
+            }
+        }
+    }
+
     fun resetFormState() {
         _formState.value = null
     }
@@ -129,4 +164,13 @@ class LibroViewModel : ViewModel() {
     fun resetDeleteState() {
         _deleteState.value = null
     }
+
+    fun resetGeneroFormState() {
+        _generoFormState.value = null
+    }
+
+    fun resetDeleteGeneroState() {
+        _deleteGeneroState.value = null
+    }
+
 }

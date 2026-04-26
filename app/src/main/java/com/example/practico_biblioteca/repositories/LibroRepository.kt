@@ -68,4 +68,26 @@ class LibroRepository {
         }
         return false
     }
+
+    suspend fun createGenero(nombre: String): Boolean {
+        try {
+            val retrofitInstance = RetrofitInstance.api
+            retrofitInstance.createGenero(mapOf("nombre" to nombre))
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
+
+    suspend fun deleteGenero(id: Int): Boolean {
+        try {
+            val retrofitInstance = RetrofitInstance.api
+            retrofitInstance.deleteGenero(id)
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
 }

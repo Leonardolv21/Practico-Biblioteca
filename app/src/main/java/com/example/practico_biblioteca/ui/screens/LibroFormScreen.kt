@@ -5,6 +5,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +24,8 @@ import com.example.practico_biblioteca.viewmodels.LibroViewModel
 fun LibroFormScreen(
     libroId: Int? = null,
     onBack: () -> Unit,
-    viewModel: LibroViewModel = viewModel()
+    viewModel: LibroViewModel = viewModel(),
+    onCrearGeneroClick: () -> Unit = {}
 ) {
     val modoEdicion = libroId != null
     val titulo = if (modoEdicion) "Editar libro" else "Crear libro"
@@ -55,6 +58,10 @@ fun LibroFormScreen(
     var errorIsbn by remember { mutableStateOf<String?>(null) }
     var errorCalificacion by remember { mutableStateOf<String?>(null) }
 
+    // Eliminacion de Genero
+    var generoAEliminar by remember { mutableStateOf<Int?>(null) }
+    val deleteGeneroState by viewModel.deleteGeneroState.collectAsState()
+
     // Pre-cargar datos en modo edición
     LaunchedEffect(detalleState) {
         if (modoEdicion && detalleState is UiState.Success) {
@@ -75,6 +82,12 @@ fun LibroFormScreen(
         if (formState is UiState.Success) {
             viewModel.resetFormState()
             onBack()
+        }
+    }
+    //Reset de Estado tras eliminar Genero
+    LaunchedEffect(deleteGeneroState) {
+        if (deleteGeneroState is UiState.Success) {
+            viewModel.resetDeleteGeneroState()
         }
     }
 
@@ -181,7 +194,18 @@ fun LibroFormScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             // Selección de géneros
-            Text(text = "Géneros", style = MaterialTheme.typography.titleSmall)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Géneros", style = MaterialTheme.typography.titleSmall)
+                TextButton(onClick = onCrearGeneroClick) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Nuevo género")
+                }
+            }
             when (val gs = generosState) {
                 is UiState.Loading -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 is UiState.Error -> Text(gs.message, color = MaterialTheme.colorScheme.error)
@@ -200,10 +224,40 @@ fun LibroFormScreen(
                                         generosSeleccionados - genero.id
                                 }
                             )
-                            Text(text = genero.nombre)
+                            Text(text = genero.nombre, modifier = Modifier.weight(1f))
+                            IconButton(onClick = { generoAEliminar = genero.id }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Eliminar género",
+                                    tint = MaterialTheme.colorScheme.error
+
+                                )
+                            }
                         }
                     }
                 }
+            }
+
+            //Dialogo de confirmacion de eliminacion de Genero
+            if (generoAEliminar != null) {
+                AlertDialog(
+                    onDismissRequest = { generoAEliminar = null },
+                    title = { Text("Confirmar eliminación") },
+                    text = { Text("¿Estás seguro de que deseas eliminar este género?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.eliminarGenero(generoAEliminar!!)
+                            generoAEliminar = null
+                        }) {
+                            Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { generoAEliminar = null }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

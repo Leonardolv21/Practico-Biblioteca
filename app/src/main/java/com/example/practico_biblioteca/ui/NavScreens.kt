@@ -4,6 +4,7 @@ enum class NavScreens {
     HOME,
     DETAIL,
     CREATE,
-    EDIT
+    EDIT,
+    GENERO_CREATE
 }
 

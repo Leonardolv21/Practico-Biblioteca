@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.practico_biblioteca.ui.NavScreens
+import com.example.practico_biblioteca.ui.screens.GeneroFormScreen
 import com.example.practico_biblioteca.ui.screens.LibroDetailScreen
 import com.example.practico_biblioteca.ui.screens.LibroFormScreen
 import com.example.practico_biblioteca.ui.screens.LibroListScreen
@@ -64,7 +65,8 @@ class MainActivity : ComponentActivity() {
                 LibroFormScreen(
                     libroId = null,
                     viewModel = vm,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onCrearGeneroClick = { navController.navigate(NavScreens.GENERO_CREATE.name) }
                 )
             }
 
@@ -75,6 +77,13 @@ class MainActivity : ComponentActivity() {
                 val id = backStackEntry.arguments?.getInt("id") ?: return@composable
                 LibroFormScreen(
                     libroId = id,
+                    viewModel = vm,
+                    onBack = { navController.popBackStack() },
+                    onCrearGeneroClick = { navController.navigate(NavScreens.GENERO_CREATE.name) }
+                )
+            }
+            composable(NavScreens.GENERO_CREATE.name) {
+                GeneroFormScreen(
                     viewModel = vm,
                     onBack = { navController.popBackStack() }
                 )
